@@ -2,9 +2,9 @@
 # MARVEL - Metagenomic Analysis and Retrieval of Viral Extended Sequences
 
 MARVEL is a pipeline for recovery of complete phage genomes from whole community shotgun metagenomic sequencing data. The tools was divided in three components:
-   * generate_bins_from_reads.py - Generate bins from whole community shotgun reads
-   * Marvel_bins.py - Machine learning prediction of phage bins
-   * function_driven_analyses.py - Analyze specific genes of interest within phage bins
+   * **generate_bins_from_reads.py** - Generate bins from whole community shotgun reads
+   * **marvel_bins.py** - Machine learning prediction of phage bins
+   * **function_driven_analyses.py** - Analyze specific genes of interest within phage bins
 
 ## Getting Started
 
