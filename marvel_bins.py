@@ -1,4 +1,3 @@
-
 #!/usr/bin/python3
 # coding: utf-8
 
@@ -23,6 +22,7 @@ import os
 import subprocess
 from collections import Counter
 import pickle
+import datetime
 
 
 # Function declarations
@@ -128,6 +128,9 @@ else:
 # Create Filehandle for warnings
 warnings_handle = open('marvel-warnings.txt', 'w')
 
+# Important variables
+threads = '12'
+
 # Take the input folder and list all multifasta(bins) contained inside it
 # Provionally, set the input folder
 input_folder = args_list[2]
@@ -154,7 +157,8 @@ for binn in list_bins:
     #print(len_bin)
     # Make sure that bacterial bins are not take into account
     if len_bin < 500000:
-        run_prokka(binn, input_folder)
+        pass
+        #run_prokka(binn, input_folder)
     count += 1
     if count%10 == 0: 
         print('Done with %d bins...' % count)
@@ -198,12 +202,12 @@ for bins in list_bins:
     data_bins.append(mean_for_bin)
     data_bins_index.append(prefix)
 array_bins = np.array(data_bins, dtype=float)
-print('Extracted features from ', len(array_bins), 'bins')
+print('Extracted features from', len(array_bins), 'bins')
 
 
 # Load RFC from file
 print('Doing the machine learning prediction...')
-pkl_filename = "pickle_model_rfc_trained_bins_refseq_until2015_4features.pkl" 
+pkl_filename = "models/pickle_model_rfc_trained_bins_refseq_until2015_4features_wt_outliers_even.pkl" 
 with open(pkl_filename, 'rb') as file:  
     pickle_model = pickle.load(file)
 
@@ -226,18 +230,48 @@ for pred in y_test_prob[:,1]:
     i += 1
 
 try:
-    os.stat(input_folder+'phage_bins')
+    os.stat(input_folder+'results')
 except:
-    os.mkdir(input_folder+'phage_bins')
+    os.mkdir(input_folder+'results')
+try:
+    os.stat(input_folder+'results/RF_predicted')
+except:
+    os.mkdir(input_folder+'results/RF_predicted')
 for bin_phage in bins_predicted_as_phages:
     #temp_file_name = input_folder+'prokka_results_'+bin_phage+'/prokka_results_'+bin_phage+'.faa'
-    subprocess.call('cp '+input_folder+bin_phage+'.fasta '+input_folder+'phage_bins/'+bin_phage+'.fasta', shell=True)
+    subprocess.call('cp '+input_folder+bin_phage+'.fasta '+input_folder+'results/RF_predicted'+bin_phage+'.fasta', shell=True)
         
-        
+print('Finished Machine learning predictions!')
+##
+# Remove false positives through HMM searches
+print('Starting HMM scan, this may take awhile. Be patient.')
+print(str(datetime.datetime.now())
+# Create a new results folder for hmmscan call
+try:
+    os.stat(input_folder+'results/hmmscan/')
+except:
+    os.mkdir(input_folder+'results/hmmscan/')
+# Call HMMscan for each bin predicted as phages
+i = 0
+for bin_phage in bins_predicted_as_phages:
+    command_line_hmmscan = 'hmmscan -o '+input_folder+'results/hmmscan/'+bin_phage+'_hmmscan.out --cpu '+threads+' --tblout '+input_folder+'results/hmmscan/'+bin_phage+'_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm '+input_folder+'prokka_results_'+bin_phage+'/prokka_results_'+bin_phage+'.faa'
+    # In case hmmscan returns an error
+    try:
+        subprocess.call(command_line_hmmscan, shell=True)
+    except:
+        print('Error calling HMMscan:', command_line_hmmscan) 
+    i += 1
+    if i%10 == 0:
+        print('Done with %d bins HMM searches...' % i)
+print('Finished HMMscan!')
+
+
+
+
 # Just make sure to end the program closing the warnings filehandle
 warnings_handle.close()
 
-
+# Prin ending messages
 print('Bins predicted as phages are in the folder:', input_folder+'phage_bins/')
 print('Thank you for using Marvel!')
 
