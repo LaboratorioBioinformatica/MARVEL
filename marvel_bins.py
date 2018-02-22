@@ -67,7 +67,7 @@ def run_prokka(binn, input_folder, threads):
     # Filehandle where the output of prokka will be saved
     #output_prokka = open(str(prefix)+'prokka.output', mode='w')
     # Full command line for prokka
-    command_line = ('prokka --kingdom Viruses --gcode 11 --cpus '+threads+' --force --quiet --prefix prokka_results_'+str(prefix)+' --fast --norrna --notrna --outdir '+input_folder+'prokka_results_'+str(prefix)+' --cdsrnaolap --noanno '+input_folder+str(binn)).split()
+    command_line = ('prokka --kingdom Viruses --gcode 11 --cpus '+threads+' --force --quiet --prefix prokka_results_'+str(prefix)+' --fast --norrna --notrna --outdir '+input_folder+'results/prokka/'+str(prefix)+' --cdsrnaolap --noanno '+input_folder+str(binn)).split()
     return_code = subprocess.call(command_line)
     # Check with prokka run smothly
     if return_code == 1:
@@ -145,6 +145,14 @@ print('Welcome to the MARVEL pipeline!')
 print('Arguments are OK. Checked the input folder (%s) and found %d bins.' % (input_folder, count_bins))
 print(str(datetime.datetime.now()))
 
+
+# Create The results folder
+try:
+    os.stat(input_folder+'results')
+except:
+    os.mkdir(input_folder+'results')
+
+
 # Running prokka for all the bins multfasta files in input folder
 # Perform a check in each bin, then call the execute_prokka function individually
 # It may take awhile
@@ -158,8 +166,8 @@ for binn in list_bins:
     #print(len_bin)
     # Make sure that bacterial bins are not take into account
     if len_bin < 500000:
-        pass
-        run_prokka(binn, input_folder)
+        #pass
+        run_prokka(binn, input_folder, threads)
     count += 1
     if count%10 == 0: 
         print('Done with %d bins...' % count)
@@ -174,6 +182,8 @@ print('Prokka tasks have finished!')
 print('Extracting features from bins...')
 data_bins = []
 data_bins_index = []
+# Temporary fix: Some GBL files are broken
+
 # Iteration for bins
 i = 0
 for bins in list_bins:
@@ -182,7 +192,7 @@ for bins in list_bins:
     
     sub_data_bins = []
     # GBK File with gene prediction
-    file_name = input_folder+'prokka_results_'+prefix+'/prokka_results_'+prefix+'.gbk'
+    file_name = input_folder+'results/prokka/'+prefix+'/prokka_results_'+prefix+'.gbk'
     for record in SeqIO.parse(file_name, "genbank"):
         # Extract_features still take the class as an argument
         # Sending only the record now
@@ -241,10 +251,7 @@ for pred in y_test_prob[:,1]:
 #    i += 1
 
 
-try:
-    os.stat(input_folder+'results')
-except:
-    os.mkdir(input_folder+'results')
+
 try:
     os.stat(input_folder+'results/RF_predicted')
 except:
@@ -270,7 +277,7 @@ except:
 bins_passed_hmmscan = []
 i = 0
 for bin_phage in bins_predicted_as_phages:
-    command_line_hmmscan = 'hmmscan -o '+input_folder+'results/hmmscan/'+bin_phage+'_hmmscan.out --cpu '+threads+' --tblout '+input_folder+'results/hmmscan/'+bin_phage+'_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm '+input_folder+'prokka_results_'+bin_phage+'/prokka_results_'+bin_phage+'.faa'
+    command_line_hmmscan = 'hmmscan -o '+input_folder+'results/hmmscan/'+bin_phage+'_hmmscan.out --cpu '+threads+' --tblout '+input_folder+'results/hmmscan/'+bin_phage+'_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm '+input_folder+'results/prokka/'+bin_phage+'/prokka_results_'+bin_phage+'.faa'
     # In case hmmscan returns an error
     try:
         subprocess.call(command_line_hmmscan, shell=True)
@@ -284,7 +291,7 @@ for bin_phage in bins_predicted_as_phages:
     # Parse hmmscan output files and find out which bins have less than 10% of their proteins
     # without any significant hits (10e-10)
     num_proteins_bin = 0
-    with open(input_folder+'prokka_results_'+bin_phage+'/prokka_results_'+bin_phage+'.faa', 'rU') as faa:
+    with open(input_folder+'results/prokka/'+bin_phage+'/prokka_results_'+bin_phage+'.faa', 'rU') as faa:
         for line in faa:
             if re.search('^>', line):
                 num_proteins_bin += 1
