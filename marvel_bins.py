@@ -142,7 +142,8 @@ for j in os.listdir(input_folder):
         count_bins += 1
         
 print('Welcome to the MARVEL pipeline!')
-print('Arguments are OK. Checked the input folder (%s) and found %d bins.' % (input_folder, count_bins)) 
+print('Arguments are OK. Checked the input folder (%s) and found %d bins.' % (input_folder, count_bins))
+print(str(datetime.datetime.now()))
 
 # Running prokka for all the bins multfasta files in input folder
 # Perform a check in each bin, then call the execute_prokka function individually
@@ -158,7 +159,7 @@ for binn in list_bins:
     # Make sure that bacterial bins are not take into account
     if len_bin < 500000:
         pass
-        #run_prokka(binn, input_folder)
+        run_prokka(binn, input_folder)
     count += 1
     if count%10 == 0: 
         print('Done with %d bins...' % count)
@@ -272,8 +273,8 @@ for bin_phage in bins_predicted_as_phages:
     command_line_hmmscan = 'hmmscan -o '+input_folder+'results/hmmscan/'+bin_phage+'_hmmscan.out --cpu '+threads+' --tblout '+input_folder+'results/hmmscan/'+bin_phage+'_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm '+input_folder+'prokka_results_'+bin_phage+'/prokka_results_'+bin_phage+'.faa'
     # In case hmmscan returns an error
     try:
-        #subprocess.call(command_line_hmmscan, shell=True)
-        True
+        subprocess.call(command_line_hmmscan, shell=True)
+        #True
     except:
         print('Error calling HMMscan:', command_line_hmmscan) 
     i += 1
