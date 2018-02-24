@@ -6,87 +6,75 @@ MARVEL is a pipeline for recovery of complete phage genomes from whole community
    * **marvel_bins.py** - Machine learning prediction of phage bins
    * **function_driven_analyses.py** - Analyze specific genes of interest within phage bins
 
-## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+### Dependencies
 
-### Prerequisites
+MARVEL's main scrip (marvel_bins.py) require Prokka and its dependencies to be installed:
 
-What things you need to install the software and how to install them
+* [Prokka](https://github.com/tseemann/prokka) - Rapid prokaryotic genome annotation.
+
+Also, these Python 3 libraries need to be installed:
+
+* [Biopython](http://biopython.org/) - Handling biological sequences and records
+* [Scikit Learn](http://scikit-learn.org/stable/) - Machine Learning prediction
 
 ```
-Give examples
+pip install numpy,scypy,biopython
+pip install -U scikit-learn
 ```
+Alternatively, you may want to install the [Conda](https://anaconda.org/) package manager and just run the commands above using 'conda' instead of 'pip'.
+
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
+Getting MARVEL ready to run is as simple as clone this Github project or dowloading it to a directory inside you computer:
 
 ```
-Give the example
+git clone https://github.com/deyvidamgarten/MARVEL
 ```
 
-And repeat
+### Getting Started
+
+Inside the directory where MARVEL was extracted (or cloned), just run:
 
 ```
-until finished
+python3 marvel_bins.py -i input_directory -t num_threads
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+Change 'input_directory' for the folder where bins in fasta format are stored and 'num_threads' for the number of CPUs core to be used.
 
-## Running the tests
+Results are stored in the 'Results' folder inside the input directory.  
 
-Explain how to run the automated tests for this system
+### Running the example datasets
 
-### Break down into end to end tests
+We provide a folder with example datasets containing mocking bins of RefSeq viral and bacterial genomes.
 
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
+To try the examples, just run:
 
 ```
-Give an example
+python3 marvel_bins.py -i example_data/ -t 12
 ```
 
-## Deployment
+### Additional scripts
 
-Add additional notes about how to deploy this on a live system
+MARVEL's main script receives metagenomic bins as input. However, we additionally provide a simple scrip which receives
+metagenomic reads (Illumina sequencing), assemblies the data in contigs and generates bins.
+[metaSpades]() and [Metabat2]() are used for assembling and binning, respectively.
 
-## Built With
+We can't stress enough that there are several tools for assembly and binning, which should be well-chosen according to
+the researcher's purposes. Here, our intention is only facilitate the use of our tool.  
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+```
+python3 generate_bins_from_reads.py -1 reads-R1.fastq -2 reads-R2.fastq -t num_threads
+```
 
-## Contributing
+### Authors
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
-## Authors
+### License
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+This project is licensed under the Creative Commons License. Codes here may be used for any purposed or modified.
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
 
