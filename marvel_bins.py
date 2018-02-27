@@ -131,11 +131,27 @@ else:
     usage()
     quit()
 
+# Greeting message
+print('\nWelcome to the MARVEL pipeline!\n')
+
+# Verify databases
+if not os.path.isfile('models/all_vogs_hmm_profiles_feb2018.hmm'):
+    print('Downloading flat file database. Do not worry, that will just take a few minutes and is executed only in the first time... \n')
+    os.system('wget ftp://ftp.ncbi.nlm.nih.gov/pub/kristensen/pVOGs/downloads/All/AllvogHMMprofiles.tar.gz')
+    print('Extracting database file...\n')
+    subprocess.run('tar -xzf AllvogHMMprofiles.tar.gz', shell=True)
+    subprocess.run('cat AllvogHMMprofiles/* > models/all_vogs_hmm_profiles_feb2018.hmm', shell=True)
+    subprocess.run('rm -r AllvogHMMprofiles/ AllvogHMMprofiles.tar.gz', shell=True)
+    print('Compressing hmm database...')
+    subprocess.run('hmmpress models/all_vogs_hmm_profiles_feb2018.hmm', shell=True)
+    print('Database is all set!\n')
+
+
 # Create Filehandle for warnings
 warnings_handle = open('marvel-warnings.txt', 'w')
 
 # Important variables
-threads = '22'
+threads = args_list[4]
 
 # Take the input folder and list all multifasta(bins) contained inside it
 # Provionally, set the input folder
@@ -147,7 +163,7 @@ for j in os.listdir(input_folder):
         list_bins.append(j)
         count_bins += 1
 
-print('\nWelcome to the MARVEL pipeline!\n')
+
 print('Arguments are OK. Checked the input folder (%s) and found %d bins.\n' % (input_folder, count_bins))
 print(str(datetime.datetime.now()))
 
@@ -173,8 +189,8 @@ for binn in list_bins:
         # print(len_bin)
     # Make sure that bacterial bins are not take into account
     if len_bin < 500000:
-        pass
-        # run_prokka(binn, input_folder, threads)
+        #pass
+        run_prokka(binn, input_folder, threads)
     count += 1
     if count % 10 == 0:
         print('Done with %d bins...' % count)
@@ -199,8 +215,8 @@ for binn in list_bins:
     command_line_hmmscan = 'hmmscan -o ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.out --cpu ' + threads + ' --tblout ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
     # In case hmmscan returns an error
     try:
-        # subprocess.call(command_line_hmmscan, shell=True)
-        True
+        subprocess.call(command_line_hmmscan, shell=True)
+        #True
     except:
         print('Error calling HMMscan:', command_line_hmmscan)
         quit()
@@ -254,6 +270,8 @@ for bins in list_bins:
     sub_data_bins = []
     # GBK File with gene prediction
     file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
+    # Temporary fix for broken GBKs
+    regex = '\'s/'
     for record in SeqIO.parse(file_name, "genbank"):
         # Extract_features still take the class as an argument
         # Sending only the record now
@@ -323,7 +341,7 @@ for bin_phage in bins_predicted_as_phages:
         shell=True)
 
 print('Finished Machine learning predictions!\n')
-
+print(str(datetime.datetime.now()))
 # Just make sure to end the program closing the warnings filehandle
 warnings_handle.close()
 

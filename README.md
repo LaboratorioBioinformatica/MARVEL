@@ -50,7 +50,12 @@ Results will be stored in the 'Results' folder inside the input directory.
 
 We provide a folder with example datasets containing mocking bins of RefSeq viral and bacterial genomes.
 
-To try the examples, just run:
+To try these examples, download the datasets from our external server:
+
+```
+wget 
+tar -xzvf example_data.tar.gz
+```
 
 ```
 python marvel_bins.py -i example_data/bins_8k_refseq -t 12
