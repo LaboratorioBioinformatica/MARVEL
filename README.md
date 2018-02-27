@@ -2,9 +2,12 @@
 # MARVEL - Metagenomic Analysis and Retrieval of Viral Extended Sequences
 
 MARVEL is a pipeline for recovery of complete phage genomes from whole community shotgun metagenomic sequencing data.
-The tool was divided in three components:
-   * **generate_bins_from_reads.py** - Generate bins from whole community shotgun reads
+
+Main script:
    * **marvel_bins.py** - Machine learning prediction of phage bins
+  
+Auxiliary scripts:
+   * **generate_bins_from_reads.py** - Generates metagenomic bins given Illumina sequencing reads
    * **function_driven_analyses.py** - Analyze specific genes of interest within phage bins
 
 
@@ -12,7 +15,7 @@ The tool was divided in three components:
 
 MARVEL's main scrip (marvel_bins.py) require Prokka and its dependencies to be installed:
 
-* [Prokka](https://github.com/tseemann/prokka) - Rapid prokaryotic genome annotation.
+* [Prokka](https://github.com/tseemann/prokka) - Rapid Prokaryotic genome annotation.
 
 These Python libraries are also required:
 
@@ -36,8 +39,14 @@ git clone https://github.com/deyvidamgarten/MARVEL
 
 ### Getting Started
 
-Inside the directory where MARVEL was extracted (or cloned), just run:
+Inside the directory where MARVEL was extracted (or cloned), you will need to download and set the models. 
+This is required only once and it is simple. Just run:
+```
+python download_and_set_models.py
+```
+All set! 
 
+Now, to run MARVEL type:
 ```
 python marvel_bins.py -i input_directory -t num_threads
 ```
@@ -50,12 +59,7 @@ Results will be stored in the 'Results' folder inside the input directory.
 
 We provide a folder with example datasets containing mocking bins of RefSeq viral and bacterial genomes.
 
-To try these examples, download the datasets from our external server:
-
-```
-wget 
-tar -xzvf example_data.tar.gz
-```
+To try these examples, run:
 
 ```
 python marvel_bins.py -i example_data/bins_8k_refseq -t 12

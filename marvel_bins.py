@@ -8,14 +8,7 @@
 
 # Import required Python modules
 import numpy as np
-# Biopython SeqIO
 from Bio import SeqIO
-from sklearn.model_selection import train_test_split
-from sklearn import svm
-from sklearn import metrics
-from sklearn.metrics import classification_report
-from sklearn.model_selection import cross_val_score
-from sklearn.ensemble import RandomForestClassifier
 import re
 import sys
 import os
@@ -136,15 +129,8 @@ print('\nWelcome to the MARVEL pipeline!\n')
 
 # Verify databases
 if not os.path.isfile('models/all_vogs_hmm_profiles_feb2018.hmm'):
-    print('Downloading flat file database. Do not worry, that will just take a few minutes and is executed only in the first time... \n')
-    os.system('wget ftp://ftp.ncbi.nlm.nih.gov/pub/kristensen/pVOGs/downloads/All/AllvogHMMprofiles.tar.gz')
-    print('Extracting database file...\n')
-    subprocess.run('tar -xzf AllvogHMMprofiles.tar.gz', shell=True)
-    subprocess.run('cat AllvogHMMprofiles/* > models/all_vogs_hmm_profiles_feb2018.hmm', shell=True)
-    subprocess.run('rm -r AllvogHMMprofiles/ AllvogHMMprofiles.tar.gz', shell=True)
-    print('Compressing hmm database...')
-    subprocess.run('hmmpress models/all_vogs_hmm_profiles_feb2018.hmm', shell=True)
-    print('Database is all set!\n')
+    print('Your database and models are not set. Please, run: python download_and_set_models.py \n')
+    quit()
 
 
 # Create Filehandle for warnings
