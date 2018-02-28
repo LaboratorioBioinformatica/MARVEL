@@ -57,21 +57,24 @@ def kmer_frequency(dna, kmer):
 # Run prokka
 def run_prokka(binn, input_folder, threads):
     # Check the fasta format
-    prefix = re.sub('.fasta', '', binn)
-
+    prefix = get_prefix(binn)
     # Filehandle where the output of prokka will be saved
     # output_prokka = open(str(prefix)+'prokka.output', mode='w')
     # Full command line for prokka
-    command_line = (
-                'prokka --kingdom Viruses --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(
-            prefix) + ' --fast --norrna --notrna --outdir ' + input_folder + 'results/prokka/' + str(
-            prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
+    command_line = ('prokka --kingdom Viruses --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(prefix) + ' --fast --norrna --notrna --outdir ' + input_folder + 'results/prokka/' + str(prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
     return_code = subprocess.call(command_line)
     # Check with prokka run smothly
     if return_code == 1:
         print("Prokka did not end well")
         quit()
 
+# Get prefix from bins
+def get_prefix(binn):
+    if re.search('.fasta', binn):
+        prefix = re.sub('.fasta', '', binn)
+    else:
+        prefix = re.sub('.fa', '', binn)
+    return(prefix)
 
 # Extract features from genbank record and prepare vector of features
 def extract_features(record):
@@ -137,23 +140,33 @@ if not os.path.isfile('models/all_vogs_hmm_profiles_feb2018.hmm'):
 warnings_handle = open('marvel-warnings.txt', 'w')
 
 # Important variables
-threads = args_list[4]
-
-# Take the input folder and list all multifasta(bins) contained inside it
-# Provionally, set the input folder
 input_folder = args_list[2]
-list_bins = []
+threads = args_list[4]
+# Fix input folder path if missing '/'
+if not re.search('/$', input_folder):
+    input_folder = input_folder+'/'
+
+
+# Take the input folder and list all multifasta (bins) contained inside it
+list_bins = os.listdir(input_folder)
 count_bins = 0
-for j in os.listdir(input_folder):
-    if re.search('.fasta', j):
-        list_bins.append(j)
-        count_bins += 1
+# Empty folder
+if list_bins == []:
+    print('Input folder is empty. Exiting...\n')
+    quit()
+else:
+    for each_bin in list_bins:
+        if re.search('.fasta', each_bin) or re.search('.fa', each_bin):
+            count_bins += 1
 
+if count_bins == 0:
+    print('There is no valid bin inside the input folder (%s).\nBins should be in \'.fasta\' or \'.fa\' format.\nExiting...'%input_folder)
+    quit()
 
-print('Arguments are OK. Checked the input folder (%s) and found %d bins.\n' % (input_folder, count_bins))
+print('Arguments are OK. Checked the input folder and found %d bins.\n' % count_bins)
 print(str(datetime.datetime.now()))
 
-# Create The results folder
+# Create results folder
 try:
     os.stat(input_folder + 'results')
 except:
@@ -165,21 +178,20 @@ except:
 # Running prokka for all the bins multfasta files in input folder
 # Perform a check in each bin, then call the execute_prokka function individually
 # It may take awhile
-count = 0
+count_prokka = 0
 print('Prokka has started, this may take awhile. Be patient.\n')
 for binn in list_bins:
     # Verify bin size
     len_bin = 0
     for record in SeqIO.parse(input_folder + binn, 'fasta'):
         len_bin += len(record.seq)
-        # print(len_bin)
-    # Make sure that bacterial bins are not take into account
+    # Make sure that bacterial bins are not take into account (too long bins)
     if len_bin < 500000:
         #pass
         run_prokka(binn, input_folder, threads)
-    count += 1
-    if count % 10 == 0:
-        print('Done with %d bins...' % count)
+    count_prokka += 1
+    if count_prokka % 10 == 0:
+        print('Done with %d bins...' % count_prokka)
 print('Prokka tasks have finished!\n')
 
 ####
@@ -187,17 +199,18 @@ print('Prokka tasks have finished!\n')
 ####
 print('Starting HMM scan, this may take awhile. Be patient.\n')
 print(str(datetime.datetime.now()))
-# Create a new results folder for hmmscan call
+# Create a new results folder for hmmscan output
 try:
     os.stat(input_folder + 'results/hmmscan/')
 except:
     os.mkdir(input_folder + 'results/hmmscan/')
 
-# Call HMMscan all bins
+# Call HMMscan to all bins
 prop_hmms_hits = {}
-i = 0
+count_hmm = 0
 for binn in list_bins:
-    prefix = re.sub('.fasta', '', binn)
+    # Prefix for naming results
+    prefix = get_prefix(binn)
     command_line_hmmscan = 'hmmscan -o ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.out --cpu ' + threads + ' --tblout ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
     # In case hmmscan returns an error
     try:
@@ -206,9 +219,9 @@ for binn in list_bins:
     except:
         print('Error calling HMMscan:', command_line_hmmscan)
         quit()
-    i += 1
+    count_hmm += 1
     # Iteration control
-    if i % 10 == 0:
+    if count_hmm % 10 == 0:
         print('Done with %d bins HMM searches...' % i)
     # Parse hmmscan output files and find out which bins have less than 10% of their proteins
     # without any significant hits (10e-10)
@@ -224,18 +237,13 @@ for binn in list_bins:
             if match:
                 if match.group(1) not in dic_matches:
                     dic_matches[match.group(1)] = float(match.group(2))
-    # Decision about this particular bin predicted as phage buy the RF classifier
+    # Take the proportion of proteins matching the pVOGs and store in a dictionary
     i_sig = 0
     for key in dic_matches:
         if dic_matches[key] <= 1e-10:
             i_sig += 1
     prop_hmms_hits[prefix] = i_sig / num_proteins_bin
-    # if i_sig/num_proteins_bin > 0.10:
-    #    bins_passed_hmmscan.append(bin_phage)
-    #    print(i_sig/num_proteins_bin, bin_phage)
 
-# print(prop_hmms_hits)
-# quit()
 ###
 # Machine learning prediction of viral bins
 ###
@@ -246,18 +254,16 @@ print('Extracting features from bins...\n')
 data_bins = []
 data_bins_index = []
 # Temporary fix: Some GBL files are broken
+# Verify this
 
 # Iteration for bins
-i = 0
+count_pred = 0
 for bins in list_bins:
-    i += 1
-    prefix = re.sub('.fasta', '', bins)
-
+    count_pred += 1
+    prefix = get_prefix(bins)
     sub_data_bins = []
     # GBK File with gene prediction
     file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
-    # Temporary fix for broken GBKs
-    regex = '\'s/'
     for record in SeqIO.parse(file_name, "genbank"):
         # Extract_features still take the class as an argument
         # Sending only the record now
@@ -267,16 +273,10 @@ for bins in list_bins:
         else:
             sub_data_bins.append(temp_list)
     ###
-    # Iteration control
-    # if i%100 == 0:
-    #    print('Done with', i, 'bins')
-    # Empty list
     if not sub_data_bins:
         continue
     sub_data_bins_array = np.array(sub_data_bins)
-    # print(sub_data_caudo_array)
     mean_for_bin = list(np.mean(sub_data_bins_array, axis=0))
-    # print(mean_for_bin)
     ####
     # Append here, the fifth feature: proportions of hmm hits
     mean_for_bin.append(prop_hmms_hits[prefix])
@@ -285,7 +285,7 @@ for bins in list_bins:
 array_bins = np.array(data_bins, dtype=float)
 print('Extracted features from', len(array_bins), 'bins\n')
 
-# Load RFC from file
+# Load RFC model from file
 print('Doing the machine learning prediction...\n')
 pkl_filename = "models/pickle_model_rfc_trained_bins_refseq_until2015_3features_den_stran_prophitshmm.pkl"
 with open(pkl_filename, 'rb') as file:
@@ -321,17 +321,14 @@ try:
 except:
     os.mkdir(input_folder + 'results/phage_bins')
 for bin_phage in bins_predicted_as_phages:
-    # temp_file_name = input_folder+'prokka_results_'+bin_phage+'/prokka_results_'+bin_phage+'.faa'
-    subprocess.call(
-        'cp ' + input_folder + bin_phage + '.fasta ' + input_folder + 'results/phage_bins/' + bin_phage + '.fasta',
-        shell=True)
+    subprocess.call('cp ' + input_folder + bin_phage + '.fasta ' + input_folder + 'results/phage_bins/' + bin_phage + '.fasta', shell=True)
 
 print('Finished Machine learning predictions!\n')
 print(str(datetime.datetime.now()))
 # Just make sure to end the program closing the warnings filehandle
 warnings_handle.close()
 
-# Prin ending messages
+# Print ending messages
 print('Bins predicted as phages are in the folder:', input_folder + 'results/phage_bins/\n')
 print('Thank you for using Marvel!\n')
 

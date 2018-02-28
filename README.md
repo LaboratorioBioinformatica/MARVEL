@@ -13,25 +13,24 @@ Auxiliary scripts:
 
 ### Dependencies
 
-MARVEL's main scrip (marvel_bins.py) require Prokka and its dependencies to be installed:
+All scripts from this project were coded in [Python 3](https://www.python.org/). So, first of all, make sure you have it installed and updated.
+
+MARVEL's main scrip (marvel_bins.py) requires Prokka and its dependencies to be installed:
 
 * [Prokka](https://github.com/tseemann/prokka) - Rapid Prokaryotic genome annotation.
 
 These Python libraries are also required:
 
+* [Numpy](http://www.numpy.org/), [Scipy](https://www.scipy.org/) - Efficiently handling arrays and scientific computing
 * [Biopython](http://biopython.org/) - Handling biological sequences and records
-* [Scikit Learn](http://scikit-learn.org/stable/) - Machine Learning prediction
 
 ```
-pip install -U numpy,scypy,biopython
-pip install scikit-learn
+pip install -U numpy,scipy,biopython
 ```
-Alternatively, you may want to install the [Conda](https://anaconda.org/) package manager and just run the commands above using 'conda' instead of 'pip'.
-
 
 ### Installing
 
-Getting MARVEL ready to run is as simple as clone this Github project or dowloading it to a directory inside you computer:
+Getting MARVEL ready to run is as simple as clone this Github project or dowload it to a directory inside you computer:
 
 ```
 git clone https://github.com/deyvidamgarten/MARVEL
@@ -42,13 +41,13 @@ git clone https://github.com/deyvidamgarten/MARVEL
 Inside the directory where MARVEL was extracted (or cloned), you will need to download and set the models. 
 This is required only once and it is simple. Just run:
 ```
-python download_and_set_models.py
+python3 download_and_set_models.py
 ```
 All set! 
 
 Now, to run MARVEL type:
 ```
-python marvel_bins.py -i input_directory -t num_threads
+python3 marvel_bins.py -i input_directory -t num_threads
 ```
 
 Change 'input_directory' for the folder where bins are stored in fasta format and 'num_threads' for the number of CPU cores to be used.
@@ -62,29 +61,30 @@ We provide a folder with example datasets containing mocking bins of RefSeq vira
 To try these examples, run:
 
 ```
-python marvel_bins.py -i example_data/bins_8k_refseq -t 12
+python3 marvel_bins.py -i example_data/bins_8k_refseq -t 12
 ```
 
 ### Additional scripts
 
 MARVEL's main script receives metagenomic bins as input. However, we additionally provide a simple scrip which receives
 metagenomic reads (Illumina sequencing) and generates bins.
-[metaSpades](http://bioinf.spbau.ru/spades) and [Metabat2](https://bitbucket.org/berkeleylab/metabat) are used for assembling and binning, respectively.
+[metaSpades](http://bioinf.spbau.ru/spades), [Bowtie2]() and [Metabat2](https://bitbucket.org/berkeleylab/metabat) are used for assembling, mapping and binning, respectively.
 
 We can't stress enough that there are several tools for assembly and binning, which should be well-chosen according to
 the researcher's purposes. Here, our intention is only facilitate the use of our tool.  
 
 ```
-python generate_bins_from_reads.py -1 reads-R1.fastq -2 reads-R2.fastq -t num_threads
+python3 generate_bins_from_reads.py -1 reads-R1.fastq -2 reads-R2.fastq -t num_threads
 ```
 
-### Authors
+### Author
+[Deyvid Amgarten](https://scholar.google.com.br/citations?user=g7_AAFEAAAAJ&hl=en) 
 
-
+This pipeline was written as part of my PhD thesis by the [Bioinformatics Graduate Program](https://www.ime.usp.br/en/bioinformatics/graduate) from the University of Sao Paulo, Brazil.
 
 
 ### License
 
-This project is licensed under the Creative Commons License. Codes here may be used for any purposed or modified.
+This project is licensed under Creative Commons. Codes here may be used for any purposed or modified.
 
 
