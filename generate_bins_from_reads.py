@@ -5,7 +5,6 @@
 # Developed by Deyvid Amgarten
 # Creative commons
 
-import re
 import sys
 import os
 import subprocess
@@ -53,7 +52,7 @@ file_reads2 = args_list[4]
 threads = args_list[6]
 
 
-# Assembly
+# Assembly with Spades
 print(str(datetime.datetime.now()))
 print('Assemblying reads into contigs with Spades. This may take awhile, please be patient...\n')
 run_spades = 'spades -1 '+file_reads1+' -2 '+file_reads2+' -t '+threads+' -o spades_assembly'
