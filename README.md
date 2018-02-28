@@ -1,8 +1,7 @@
 
 # MARVEL - Metagenomic Analysis and Retrieval of Viral Extended Sequences
 
-MARVEL is a pipeline for recovery of complete phage genomes from whole community shotgun metagenomic sequencing data.
-
+MARVEL is a pipeline for recovery of complete phage genomes from whole community shotgun metagenomic sequencing data.  
 Main script:
    * **marvel_bins.py** - Machine learning prediction of phage bins
   
@@ -13,8 +12,7 @@ Auxiliary scripts:
 
 ### Dependencies
 
-All scripts from this project were coded in [Python 3](https://www.python.org/). So, first of all, make sure you have it installed and updated.
-
+All scripts from this project were coded in [Python 3](https://www.python.org/). So, first of all, make sure you have it installed and updated.  
 MARVEL's main scrip (marvel_bins.py) requires Prokka and its dependencies to be installed:
 
 * [Prokka](https://github.com/tseemann/prokka) - Rapid Prokaryotic genome annotation.
@@ -43,21 +41,18 @@ This is required only once and it is simple. Just run:
 ```
 python3 download_and_set_models.py
 ```
-All set! 
-
+All set!  
 Now, to run MARVEL type:
 ```
 python3 marvel_bins.py -i input_directory -t num_threads
 ```
 
-Change 'input_directory' for the folder where bins are stored in fasta format and 'num_threads' for the number of CPU cores to be used.
-
+Change 'input_directory' for the folder where bins are stored in fasta format and 'num_threads' for the number of CPU cores to be used.  
 Results will be stored in the 'Results' folder inside the input directory.  
 
 ### Running the example datasets
 
-We provide a folder with example datasets containing mocking bins of RefSeq viral and bacterial genomes.
-
+We provide a folder with example datasets containing mocking bins of RefSeq viral and bacterial genomes.  
 To try these examples, run:
 
 ```
@@ -68,8 +63,7 @@ python3 marvel_bins.py -i example_data/bins_8k_refseq -t 12
 
 MARVEL's main script receives metagenomic bins as input. However, we additionally provide a simple scrip which receives
 metagenomic reads (Illumina sequencing) and generates bins.
-[metaSpades](http://bioinf.spbau.ru/spades), [Bowtie2]() and [Metabat2](https://bitbucket.org/berkeleylab/metabat) are used for assembling, mapping and binning, respectively.
-
+[metaSpades](http://bioinf.spbau.ru/spades), [Bowtie2]() and [Metabat2](https://bitbucket.org/berkeleylab/metabat) are used for assembling, mapping and binning, respectively.  
 We can't stress enough that there are several tools for assembly and binning, which should be well-chosen according to
 the researcher's purposes. Here, our intention is only facilitate the use of our tool.  
 
@@ -78,8 +72,7 @@ python3 generate_bins_from_reads.py -1 reads-R1.fastq -2 reads-R2.fastq -t num_t
 ```
 
 ### Author
-[Deyvid Amgarten](https://scholar.google.com.br/citations?user=g7_AAFEAAAAJ&hl=en) 
-
+[Deyvid Amgarten](https://scholar.google.com.br/citations?user=g7_AAFEAAAAJ&hl=en)  
 This pipeline was written as part of my PhD thesis by the [Bioinformatics Graduate Program](https://www.ime.usp.br/en/bioinformatics/graduate) from the University of Sao Paulo, Brazil.
 
 
