@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # coding: utf-8
-
+#
+#
 ## This is the MARVEL Pipeline for analysis and retrieaval of Viral Long sequences
 ## This is an auxiliary script to download and set models
 # Developed by Deyvid Amgarten
-# Creative commons
 
 # Libraries
 import os
