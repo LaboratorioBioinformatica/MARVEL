@@ -61,7 +61,7 @@ def run_prokka(binn, input_folder, threads):
     # Filehandle where the output of prokka will be saved
     # output_prokka = open(str(prefix)+'prokka.output', mode='w')
     # Full command line for prokka
-    command_line = ('prokka --kingdom Viruses --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(prefix) + ' --fast --norrna --notrna --outdir ' + input_folder + 'results/prokka/' + str(prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
+    command_line = ('prokka --kingdom Viruses --centre X --compliant --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(prefix) + ' --fast --norrna --notrna --outdir ' + input_folder + 'results/prokka/' + str(prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
     return_code = subprocess.call(command_line)
     # Check with prokka run smothly
     if return_code == 1:
@@ -148,15 +148,17 @@ if not re.search('/$', input_folder):
 
 
 # Take the input folder and list all multifasta (bins) contained inside it
-list_bins = os.listdir(input_folder)
+list_bins_temp = os.listdir(input_folder)
+list_bins = []
 count_bins = 0
 # Empty folder
-if list_bins == []:
+if list_bins_temp == []:
     print('Input folder is empty. Exiting...\n')
     quit()
 else:
-    for each_bin in list_bins:
+    for each_bin in list_bins_temp:
         if re.search('.fasta', each_bin) or re.search('.fa', each_bin):
+            list_bins.append(each_bin)
             count_bins += 1
 
 if count_bins == 0:
@@ -168,9 +170,10 @@ print(str(datetime.datetime.now()))
 
 # Create results folder
 try:
-    os.stat(input_folder + 'results')
+    os.stat(input_folder + 'results/')
 except:
-    os.mkdir(input_folder + 'results')
+    os.mkdir(input_folder + 'results/')
+
 
 #####
 # PROKKA
@@ -188,7 +191,7 @@ for binn in list_bins:
     # Make sure that bacterial bins are not take into account (too long bins)
     #if len_bin < 500000:
         #pass
-    run_prokka(binn, input_folder, threads)
+    #run_prokka(binn, input_folder, threads)
     count_prokka += 1
     if count_prokka % 10 == 0:
         print('Done with %d bins...' % count_prokka)
@@ -226,12 +229,12 @@ for binn in list_bins:
     # Parse hmmscan output files and find out which bins have less than 10% of their proteins
     # without any significant hits (10e-10)
     num_proteins_bin = 0
-    with open(input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa', 'rU') as faa:
+    with open(input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa', 'r') as faa:
         for line in faa:
             if re.search('^>', line):
                 num_proteins_bin += 1
     dic_matches = {}
-    with open(input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl', 'rU') as hmmscan_out:
+    with open(input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl', 'r') as hmmscan_out:
         for line in hmmscan_out:
             match = re.search('^VOG\d+\s+-\s+(\S+)\s+-\s+(\S+)\s+.+$', line)
             if match:
@@ -320,6 +323,7 @@ try:
     os.stat(input_folder + 'results/phage_bins')
 except:
     os.mkdir(input_folder + 'results/phage_bins')
+
 for bin_phage in bins_predicted_as_phages:
     subprocess.call('cp ' + input_folder + bin_phage + '.fasta ' + input_folder + 'results/phage_bins/' + bin_phage + '.fasta', shell=True)
 
