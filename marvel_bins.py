@@ -186,9 +186,9 @@ for binn in list_bins:
     for record in SeqIO.parse(input_folder + binn, 'fasta'):
         len_bin += len(record.seq)
     # Make sure that bacterial bins are not take into account (too long bins)
-    if len_bin < 500000:
+    #if len_bin < 500000:
         #pass
-        run_prokka(binn, input_folder, threads)
+    run_prokka(binn, input_folder, threads)
     count_prokka += 1
     if count_prokka % 10 == 0:
         print('Done with %d bins...' % count_prokka)
