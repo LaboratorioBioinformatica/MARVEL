@@ -222,7 +222,7 @@ for binn in list_bins:
     count_hmm += 1
     # Iteration control
     if count_hmm % 10 == 0:
-        print('Done with %d bins HMM searches...' % i)
+        print('Done with %d bins HMM searches...' % count_hmm)
     # Parse hmmscan output files and find out which bins have less than 10% of their proteins
     # without any significant hits (10e-10)
     num_proteins_bin = 0
