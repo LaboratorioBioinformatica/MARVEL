@@ -22,7 +22,7 @@ import datetime
 
 # Usage
 def usage():
-    print('MARVEL Usage: marvel_bins.py -i input_folder \n\t-i input folder with bins\n\t-h This message')
+    print('MARVEL Usage: marvel_bins.py -i input_folder \n\t-i input folder with bins\n\t-t Number of CPU threads\n\t-h This message')
 
 
 # Verify arguments
