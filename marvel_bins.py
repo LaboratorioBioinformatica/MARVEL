@@ -191,7 +191,7 @@ for binn in list_bins:
     # Make sure that bacterial bins are not take into account (too long bins)
     #if len_bin < 500000:
         #pass
-    #run_prokka(binn, input_folder, threads)
+    run_prokka(binn, input_folder, threads)
     count_prokka += 1
     if count_prokka % 10 == 0:
         print('Done with %d bins...' % count_prokka)
