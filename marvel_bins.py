@@ -157,7 +157,10 @@ if list_bins_temp == []:
     quit()
 else:
     for each_bin in list_bins_temp:
-        if re.search('.fasta', each_bin) or re.search('.fa', each_bin):
+        if re.search('.fasta', each_bin):
+            list_bins.append(each_bin)
+            count_bins += 1
+        elif re.search('.fa', each_bin):
             list_bins.append(each_bin)
             count_bins += 1
 
@@ -324,8 +327,12 @@ try:
 except:
     os.mkdir(input_folder + 'results/phage_bins')
 
+if re.search('.fasta',list_bins[2]):
+    file_format = '.fasta'
+else:
+    file_format = '.fa'
 for bin_phage in bins_predicted_as_phages:
-    subprocess.call('cp ' + input_folder + bin_phage + '.fasta ' + input_folder + 'results/phage_bins/' + bin_phage + '.fasta', shell=True)
+    subprocess.call('cp ' + input_folder + bin_phage + file_format + ' ' + input_folder + 'results/phage_bins/' + bin_phage + '.fasta', shell=True)
 
 print('Finished Machine learning predictions!\n')
 print(str(datetime.datetime.now()))

@@ -2,6 +2,7 @@
 # MARVEL - Metagenomic Analysis and Retrieval of Viral Extended Sequences
 
 MARVEL is a pipeline for recovery of complete phage genomes from whole community shotgun metagenomic sequencing data.  
+
 Main script:
    * **marvel_bins.py** - Machine learning prediction of phage bins
   
@@ -23,7 +24,7 @@ These Python libraries are also required:
 * [Biopython](http://biopython.org/) - Handling biological sequences and records
 
 ```
-pip install -U numpy,scipy,biopython
+pip install -U numpy scipy biopython
 ```
 
 ### Installing
