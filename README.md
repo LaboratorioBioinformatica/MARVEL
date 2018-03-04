@@ -72,6 +72,12 @@ the researcher's purposes. Here, our intention is only facilitate the use of our
 python3 generate_bins_from_reads.py -1 reads-R1.fastq -2 reads-R2.fastq -t num_threads
 ```
 
+### Simulated RefSeq datasets for training and testing
+
+All the simulated datasets used for training and testing the Random Forest classifier were made available through this link:
+
+[Browse and Download datasets](http://projetos.lbi.iq.usp.br/metazoo/deyvid/datasets/) 
+
 ### Author
 [Deyvid Amgarten](https://scholar.google.com.br/citations?user=g7_AAFEAAAAJ&hl=en)  
 This pipeline was written as part of my PhD thesis by the [Bioinformatics Graduate Program](https://www.ime.usp.br/en/bioinformatics/graduate) from the University of Sao Paulo, Brazil.
