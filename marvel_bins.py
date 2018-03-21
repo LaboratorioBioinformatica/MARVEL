@@ -86,7 +86,7 @@ def extract_features(record):
     for feature in record.features:
         # This is a modification for erroneus translations
         if feature.type == "CDS":
-            if re.search('\w\*', str(feature.qualifiers['translation']) is None:
+            if re.search('\w\*', str(feature.qualifiers['translation'])) is None:
                 count += 1
                 start = feature.location.start
                 end = feature.location.end
