@@ -85,29 +85,30 @@ def extract_features(record):
     non_coding_spacing = []
     for feature in record.features:
         # This is a modification for erroneus translations
-        if feature.type == "CDS" and re.search('\w\*', str(feature.qualifiers['translation'])) is None:
-            count += 1
-            start = feature.location.start
-            end = feature.location.end
-            sum_cds_length += (end - start)
-            if count == 1:
-                strand_prev = feature.location.strand
-                end_prev = end
-            else:
-                non_coding_spacing.append(start - end_prev)
-                if strand_prev != feature.location.strand:
-                    strand_shift += 1
-                end_prev = end
-                strand_prev = feature.location.strand
+        if feature.type == "CDS":
+            if re.search('\w\*', str(feature.qualifiers['translation']) is None:
+                count += 1
+                start = feature.location.start
+                end = feature.location.end
+                sum_cds_length += (end - start)
+                if count == 1:
+                    strand_prev = feature.location.strand
+                    end_prev = end
+                else:
+                    non_coding_spacing.append(start - end_prev)
+                    if strand_prev != feature.location.strand:
+                        strand_shift += 1
+                    #end_prev = end
+                    #strand_prev = feature.location.strand
 
     if len(non_coding_spacing) > 1:
         density = count / (len(record.seq) / 1000)
-        mean_gene_size = sum_cds_length / count
+        #mean_gene_size = sum_cds_length / count
         sum_spacing = 0
         for i in non_coding_spacing:
             sum_spacing += i
-        mean_spacing_size = sum_spacing / (len(non_coding_spacing) - 1)
-        ATG_freq = kmer_frequency(str(record.seq), 'ATG')
+        #mean_spacing_size = sum_spacing / (len(non_coding_spacing) - 1)
+        #ATG_freq = kmer_frequency(str(record.seq), 'ATG')
         # Return mean size of non conding regions and the density of genes
         # print(record.id, [mean_spacing_size, density, mean_gene_size, strand_shift, '/', count, flag])
         return ([density, strand_shift / count])
