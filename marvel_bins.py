@@ -86,20 +86,23 @@ def extract_features(record):
     for feature in record.features:
         # This is a modification for erroneus translations
         if feature.type == "CDS":
-            if re.search('\w\*', str(feature.qualifiers['translation'])) is None:
-                count += 1
-                start = feature.location.start
-                end = feature.location.end
-                sum_cds_length += (end - start)
-                if count == 1:
-                    strand_prev = feature.location.strand
-                    end_prev = end
-                else:
-                    non_coding_spacing.append(start - end_prev)
-                    if strand_prev != feature.location.strand:
-                        strand_shift += 1
+            if 'translation' in feature.qualifiers:
+                if re.search('\w\*', str(feature.qualifiers['translation'])) is None:
+                    count += 1
+                    start = feature.location.start
+                    end = feature.location.end
+                    sum_cds_length += (end - start)
+                    if count == 1:
+                        strand_prev = feature.location.strand
+                        end_prev = end
+                    else:
+                        non_coding_spacing.append(start - end_prev)
+                        if strand_prev != feature.location.strand:
+                            strand_shift += 1
                     #end_prev = end
                     #strand_prev = feature.location.strand
+            else:
+                print('WARNING: Prokka predicted a CDS, but there is no translation. Record ID: ',record.id)
 
     if len(non_coding_spacing) > 1:
         density = count / (len(record.seq) / 1000)
