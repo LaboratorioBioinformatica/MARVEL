@@ -48,8 +48,9 @@ Now, to run MARVEL type:
 python3 marvel_bins.py -i input_directory -t num_threads
 ```
 
-Change 'input_directory' for the folder where bins are stored in fasta format and 'num_threads' for the number of CPU cores to be used.  
+Change 'input_directory' for the folder where bins are stored in fasta format and 'num_threads' for the number of CPU cores to be used.   
 Results will be stored in the 'Results' folder inside the input directory.  
+Obs: You need to execute the scripts from the directory where MARVEL was extracted, i.e., MARVEL's root folder. 
 
 ### Running the example datasets
 
@@ -79,7 +80,7 @@ All the simulated datasets used for training and testing the Random Forest class
 [Browse and Download datasets](http://projetos.lbi.iq.usp.br/metazoo/deyvid/datasets/) 
 
 ### Author
-[Deyvid Amgarten](https://scholar.google.com.br/citations?user=g7_AAFEAAAAJ&hl=en)  
+[Deyvid Amgarten](https://sites.google.com/view/deyvid/english)  
 This pipeline was written as part of my PhD thesis by the [Bioinformatics Graduate Program](https://www.ime.usp.br/en/bioinformatics/graduate) from the University of Sao Paulo, Brazil.
 
 
