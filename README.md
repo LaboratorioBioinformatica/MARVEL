@@ -32,7 +32,7 @@ pip install -U numpy scipy biopython
 Getting MARVEL ready to run is as simple as clone this Github project or dowload and extract it to a directory inside you computer:
 
 ```
-git clone https://github.com/deyvidamgarten/MARVEL
+git clone https://github.com/LaboratorioBioinformatica/MARVEL
 ```
 
 ### Getting Started
