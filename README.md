@@ -1,5 +1,5 @@
 
-# MARVEL - Metagenomic Analysis and Retrieval of Viral Extended Sequences
+# MARVEL - Metagenomic Analysis and Retrieval of Viral Elements
 
 MARVEL is a pipeline for recovery of complete phage genomes from whole community shotgun metagenomic sequencing data.  
 
@@ -86,6 +86,6 @@ This pipeline was written as part of my PhD thesis by the [Bioinformatics Gradua
 
 ### License
 
-This project is licensed under Creative Commons. Codes here may be used for any purposed or modified.
+This project is licensed under GNU license. Codes here may be used for any purposed or modified.
 
 
