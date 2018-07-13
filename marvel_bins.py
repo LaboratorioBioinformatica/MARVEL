@@ -62,7 +62,7 @@ def run_prokka(binn, input_folder, threads):
     # output_prokka = open(str(prefix)+'prokka.output', mode='w')
     # Full command line for prokka
     command_line = ('prokka --kingdom Viruses --centre X --compliant --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(prefix) + ' --fast --norrna --notrna --outdir ' + input_folder + 'results/prokka/' + str(prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
-    return_code = subprocess.call(command_line)
+    return_code = subprocess.call(command_line, stderr=subprocess.PIPE)
     # Check with prokka run smothly
     if return_code == 1:
         print("Prokka did not end well")
@@ -132,11 +132,11 @@ else:
     quit()
 
 # Greeting message
-print('\nWelcome to the MARVEL pipeline!\n')
+print('\n**Welcome to the MARVEL pipeline!\n')
 
 # Verify databases
 if not os.path.isfile('models/all_vogs_hmm_profiles_feb2018.hmm'):
-    print('Your database and models are not set. Please, run: python download_and_set_models.py \n')
+    print('**Your database and models are not set. Please, run: python download_and_set_models.py \n')
     quit()
 
 
@@ -157,23 +157,23 @@ list_bins = []
 count_bins = 0
 # Empty folder
 if list_bins_temp == []:
-    print('Input folder is empty. Exiting...\n')
+    print('**Input folder is empty. Exiting...\n')
     quit()
 else:
     for each_bin in list_bins_temp:
-        if re.search('.fasta', each_bin):
+        if re.search('.fasta$', each_bin, re.IGNORECASE):
             list_bins.append(each_bin)
             count_bins += 1
-        elif re.search('.fa', each_bin):
+        elif re.search('.fa$', each_bin, re.IGNORECASE):
             list_bins.append(each_bin)
             count_bins += 1
 
 if count_bins == 0:
-    print('There is no valid bin inside the input folder (%s).\nBins should be in \'.fasta\' or \'.fa\' format.\nExiting...'%input_folder)
+    print('**There is no valid bin inside the input folder (%s).\nBins should be in \'.fasta\' or \'.fa\' format.\nExiting...'%input_folder)
     quit()
 
-print('Arguments are OK. Checked the input folder and found %d bins.\n' % count_bins)
-print(str(datetime.datetime.now()))
+print('**Arguments are OK. Checked the input folder and found %d bins.\n' % count_bins)
+#print(str(datetime.datetime.now()))
 
 # Create results folder
 try:
@@ -189,7 +189,7 @@ except:
 # Perform a check in each bin, then call the execute_prokka function individually
 # It may take awhile
 count_prokka = 0
-print('Prokka has started, this may take awhile. Be patient.\n')
+print('**Prokka has started, this may take awhile. Be patient.\n')
 for binn in list_bins:
     # Verify bin size
     len_bin = 0
@@ -201,14 +201,14 @@ for binn in list_bins:
     run_prokka(binn, input_folder, threads)
     count_prokka += 1
     if count_prokka % 10 == 0:
-        print('Done with %d bins...' % count_prokka)
-print('Prokka tasks have finished!\n')
+        print('**Done with %d bins...' % count_prokka)
+print('**Prokka tasks have finished!\n')
 
 ####
 # HMM SEARCHES
 ####
-print('Starting HMM scan, this may take awhile. Be patient.\n')
-print(str(datetime.datetime.now()))
+print('**Starting HMM scan, this may take awhile. Be patient.\n')
+#print(str(datetime.datetime.now()))
 # Create a new results folder for hmmscan output
 try:
     os.stat(input_folder + 'results/hmmscan/')
@@ -227,12 +227,12 @@ for binn in list_bins:
         subprocess.call(command_line_hmmscan, shell=True)
         #True
     except:
-        print('Error calling HMMscan:', command_line_hmmscan)
+        print('**Error calling HMMscan:', command_line_hmmscan)
         quit()
     count_hmm += 1
     # Iteration control
     if count_hmm % 10 == 0:
-        print('Done with %d bins HMM searches...' % count_hmm)
+        print('**Done with %d bins HMM searches...' % count_hmm)
     # Parse hmmscan output files and find out which bins have less than 10% of their proteins
     # without any significant hits (10e-10)
     num_proteins_bin = 0
@@ -260,7 +260,7 @@ for binn in list_bins:
 
 # Go for each bin and extract relevant features from respective genbank files
 # Final feature vector is "array_bins"
-print('Extracting features from bins...\n')
+print('\n**Extracting features from bins...\n')
 data_bins = []
 data_bins_index = []
 # Temporary fix: Some GBL files are broken
@@ -293,11 +293,11 @@ for bins in list_bins:
     data_bins.append(mean_for_bin)
     data_bins_index.append(prefix)
 array_bins = np.array(data_bins, dtype=float)
-print('Extracted features from', len(array_bins), 'bins\n')
+print('**Extracted features from', len(array_bins), 'bins\n')
 
 # Load RFC model from file
-print('Doing the machine learning prediction...\n')
-pkl_filename = "models/pickle_model_rfc_trained_bins_refseq_until2015_3features_den_stran_prophitshmm.pkl"
+print('**Doing the machine learning prediction...\n')
+pkl_filename = "models/pickle_model_rfc_trained_bins8k_refseq_all_3features_den_stran_prophitshmm.pkl"
 with open(pkl_filename, 'rb') as file:
     pickle_model = pickle.load(file)
 
@@ -311,9 +311,15 @@ y_test_prob = pickle_model.predict_proba(array_bins[:, ])
 # 0.5 will be the threshold of probability for the class 1
 bins_predicted_as_phages = []
 i = 0
+is_there_phages = 0
 for pred in y_test_prob[:, 1]:
     if pred >= 0.7:
+        if is_there_phages == 0:
+            print("**Found phages in this sample!!!")
+            print("**Bins predicted as phages and probabilities according to Random Forest algorithm:")
+            is_there_phages = 1
         bins_predicted_as_phages.append(data_bins_index[i])
+        print("***", data_bins_index[i], "-> ",round(pred*100,2),"%")
         # print(pred, data_bins_index[i], array_bins[i])
     i += 1
 
@@ -326,24 +332,26 @@ for pred in y_test_prob[:, 1]:
 #    i += 1
 
 
-try:
-    os.stat(input_folder + 'results/phage_bins')
-except:
-    os.mkdir(input_folder + 'results/phage_bins')
-
-if re.search('.fasta',list_bins[2]):
-    file_format = '.fasta'
-else:
-    file_format = '.fa'
-for bin_phage in bins_predicted_as_phages:
-    subprocess.call('cp ' + input_folder + bin_phage + file_format + ' ' + input_folder + 'results/phage_bins/' + bin_phage + '.fasta', shell=True)
-
 print('Finished Machine learning predictions!\n')
-print(str(datetime.datetime.now()))
+#print(str(datetime.datetime.now()))
 # Just make sure to end the program closing the warnings filehandle
 warnings_handle.close()
 
+if is_there_phages == 1:
+    try:
+        os.stat(input_folder + 'results/phage_bins')
+    except:
+        os.mkdir(input_folder + 'results/phage_bins')
+    if re.search('.fasta',list_bins[0], re.IGNORECASE):
+        file_format = '.fasta'
+    else:
+        file_format = '.fa'
+    for bin_phage in bins_predicted_as_phages:
+        subprocess.call('cp ' + input_folder + bin_phage + file_format + ' ' + input_folder + 'results/phage_bins/' + bin_phage + '.fasta', shell=True)
+    print('**Bins predicted as phages are in the folder:', input_folder + 'results/phage_bins/\n')
+else:
+    print("**We did not find any phage bins in this sample.")
+
 # Print ending messages
-print('Bins predicted as phages are in the folder:', input_folder + 'results/phage_bins/\n')
-print('Thank you for using Marvel!\n')
+print('**Thank you for using Marvel!\n')
 
