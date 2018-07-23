@@ -33,7 +33,7 @@ pip3 install -U numpy scipy biopython
 
 ## Installing
 
-Getting MARVEL ready to run is as simple as clone this Github project or dowload and extract it to a directory inside you computer:
+Getting MARVEL ready to run is as simple as cloning this Github project or dowload and extract it to a directory inside you computer:
 
 ```
 git clone https://github.com/LaboratorioBioinformatica/MARVEL
@@ -52,7 +52,7 @@ Now, to run MARVEL type:
 python3 marvel_bins.py -i input_directory -t num_threads
 ```
 
-Change 'input_directory' for the folder where bins are stored in fasta format and 'num_threads' for the number of CPU cores to be used. Several threads should be used for speed up prokka and hmm searches.  
+Change 'input_directory' to the folder where bins are stored in fasta format and 'num_threads' to the number of CPU cores to be used. Several threads should be used to speed up prokka and hmm searches.  
 Results will be stored in the 'Results' folder inside the input directory.  
 Obs: You need to execute the scripts from the directory where MARVEL was extracted, i.e., MARVEL's root folder. 
 
@@ -94,9 +94,9 @@ MARVEL is indicated to metagenomic studies where whole community DNA sequencing 
 
 For improved draft genomes, we suggested the following additional steps:
 
-5. Merge contigs with overlapping ends with [Phrap](http://www.phrap.org/phredphrapconsed.html) for each bin predicted by MARVEL as phage individually.
+6. Merge contigs with overlapping ends with [Phrap](http://www.phrap.org/phredphrapconsed.html) for each bin predicted by MARVEL as phage individually.
 
-6. Further validate predicted bins by assessing bacterial/archaeal genes with [CheckM](https://github.com/Ecogenomics/CheckM/wiki) and predicting tail/capsid proteins with [VIRALpro](http://scratch.proteomics.ics.uci.edu/explanation.html#VIRALpro).
+7. Further validate predicted bins by assessing bacterial/archaeal genes with [CheckM](https://github.com/Ecogenomics/CheckM/wiki) and predicting tail/capsid proteins with [VIRALpro](http://scratch.proteomics.ics.uci.edu/explanation.html#VIRALpro).
 
 If you have any question, please contact us. We will be glad to help with your analyses.  
 deyvid.amgarten@usp.br
