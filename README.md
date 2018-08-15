@@ -83,19 +83,19 @@ python3 generate_bins_from_reads.py -1 reads-R1.fastq -2 reads-R2.fastq -t num_t
 
 MARVEL is indicated to metagenomic studies where whole community DNA sequencing reads are available. The process of binning with Metabat2 will work better if you have several samples from a same environment (time-series samples for example), so Metabat2 can assess contigs' abundancy correlation among samples and create better bins. Here we suggest a workflow of analyses to generate draft phage genomes from time-series samples raw sequencing reads.
 
-1. Assembly raw reads for each sample individually with metaSpades.
+1. Assembly raw reads for each sample individually with [metaSpades](http://bioinf.spbau.ru/spades).
 
 2. Join contigs in a single multi-FASTA and use dedupe from [BBMap](https://github.com/BioInfoTools/BBMap) tools to remove duplicated contigs.
 
-3. Use resulting deduplicated contigs as reference for mapping individual samples' reads with Bowtie2.
+3. Use resulting deduplicated contigs as reference for mapping samples' reads individually with [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml).
 
-3. Generate bins with metabat2 using BAM files obtained in step 3. At this point, it is important to set this specific parameters in metabat2: -m 1500 -s 10000. You should use this parameters, so metabat2 can generate bins with phage genomes characteristics.
+3. Generate bins with metabat2 using BAM files obtained in step 3. At this point, it is important to set these specific parameters in metabat2: -m 1500 -s 10000. You should use these parameters, so metabat2 can generate bins with phage genomes characteristics.
 
-4. Run MARVEL giving bins' folder as input. Bins predicted as phage will be in the folder: results/phage_genomes/.
+4. Run MARVEL giving bins folder as input. Bins predicted as phage will be in the folder: results/phage_genomes/.
 
 For improved draft genomes, we suggested the following additional steps:
 
-6. Merge contigs with overlapping ends with [Phrap](http://www.phrap.org/phredphrapconsed.html) for each bin predicted by MARVEL as phage individually.
+6. Merge contigs with overlapping ends with [Phrap](http://www.phrap.org/phredphrapconsed.html) for each individual bin predicted by MARVEL as phage.
 
 7. Further validate predicted bins by assessing bacterial/archaeal genes with [CheckM](https://github.com/Ecogenomics/CheckM/wiki) and predicting tail/capsid proteins with [VIRALpro](http://scratch.proteomics.ics.uci.edu/explanation.html#VIRALpro).
 
