@@ -18,9 +18,10 @@ If you find MARVEL useful in your research, please cite:
 ## Dependencies
 
 All scripts from this project were coded in [Python 3](https://www.python.org/). So, first of all, make sure you have it installed and updated.  
-MARVEL's main scrip (marvel_bins.py) requires Prokka and its dependencies to be installed:
+MARVEL's main scrip (marvel_bins.py) requires Prokka and HMMER tools as dependencies. By installing Prokka, you will usually  install HMMER tools automatically.
 
 * [Prokka](https://github.com/tseemann/prokka) - Rapid Prokaryotic genome annotation.
+* [HMMER Tools](http://www.hmmer.org/) - Biosequence analysis using profile hidden Markov models
 
 These Python libraries are required:
 
