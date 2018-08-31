@@ -16,25 +16,9 @@ import subprocess
 from collections import Counter
 import pickle
 import datetime
-
+import argparse
 
 # Function declarations
-
-# Usage
-def usage():
-    print('MARVEL Usage: marvel_bins.py -i input_folder \n\t-i input folder with bins\n\t-t Number of CPU threads\n\t-h This message')
-
-
-# Verify arguments
-def verify_arg(arg_list):
-    if arg_list[1] == '-i':
-        return True
-    elif arg_list[1] == '-h':
-        return False
-    else:
-        print('There is something wrong, use -h for information and usage')
-        return False
-
 
 # Auxiliary function to kmer_frequencies
 def chunks(l, n):
@@ -123,13 +107,13 @@ def extract_features(record):
 ### Main code
 ###
 
-# Verify arguments
-args_list = sys.argv
-if verify_arg(args_list):
-    pass
-else:
-    usage()
-    quit()
+# Set arguments
+# Modification to use argparse
+parser = argparse.ArgumentParser(description='Predic phage draft genomes in metagenomic bins.')
+parser.add_argument('-i', action="store", required=True, dest="input_folder", help='Path to a folder containing metagenomic bins in .fa or .fasta format (required!)')
+parser.add_argument('-t', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmscan (default=1)')
+args = parser.parse_args()
+
 
 # Greeting message
 print('\n**Welcome to the MARVEL pipeline!\n')
@@ -144,8 +128,9 @@ if not os.path.isfile('models/all_vogs_hmm_profiles_feb2018.hmm'):
 warnings_handle = open('marvel-warnings.txt', 'w')
 
 # Important variables
-input_folder = args_list[2]
-threads = args_list[4]
+input_folder = args.input_folder
+threads = args.threads
+
 # Fix input folder path if missing '/'
 if not re.search('/$', input_folder):
     input_folder = input_folder+'/'
