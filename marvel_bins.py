@@ -99,8 +99,8 @@ def extract_features(record):
                         non_coding_spacing.append(start - end_prev)
                         if strand_prev != feature.location.strand:
                             strand_shift += 1
-                    #end_prev = end
-                    #strand_prev = feature.location.strand
+                    end_prev = end
+                    strand_prev = feature.location.strand
             else:
                 print('WARNING: Prokka predicted a CDS, but there is no translation. Record ID: ',record.id)
 
