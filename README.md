@@ -35,7 +35,7 @@ pip3 install -U numpy scipy biopython
 
 ## Installing
 
-Getting MARVEL ready to run is as simple as cloning this Github project or dowload and extract it to a directory inside you computer:
+Getting MARVEL ready to run is as simple as cloning this Github project or dowload and extract it to a directory inside your computer:
 
 ```
 git clone https://github.com/LaboratorioBioinformatica/MARVEL
