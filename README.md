@@ -27,10 +27,11 @@ These Python libraries are required:
 
 * [Numpy](http://www.numpy.org/), [Scipy](https://www.scipy.org/) - Efficiently handling arrays and scientific computing
 * [Biopython](http://biopython.org/) - Handling biological sequences and records
+* [Scikit-learn](http://scikit-learn.org/stable/) - Machine learning
 
 To install these Python libraries, just type: 
 ```
-pip3 install -U numpy scipy biopython
+pip3 install -U numpy scipy biopython scikit-learn
 ```
 
 ## Installing
