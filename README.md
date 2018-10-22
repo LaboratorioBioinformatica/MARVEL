@@ -1,5 +1,7 @@
 
-# MARVEL - Metagenomic Analysis and Retrieval of Viral Elements
+<img src="logo_marvel.png" height="110" alt="MARVEL" />
+
+# Metagenomic Analysis and Retrieval of Viral Elements
 
 MARVEL is a tool for recovery of draft phage genomes from whole community shotgun metagenomic sequencing data.  
 
