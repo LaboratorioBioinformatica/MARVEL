@@ -1,5 +1,5 @@
 
-<img src="logo_marvel.png" height="110" alt="MARVEL" />
+<p align="center"> <img src="logo_marvel.png" height="110" alt="MARVEL" /> </p>
 
 # Metagenomic Analysis and Retrieval of Viral Elements
 
