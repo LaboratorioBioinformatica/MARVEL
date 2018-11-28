@@ -17,6 +17,10 @@ A manuscript describing MARVEL was recently published in [Frontiers in Genetics]
 If you find MARVEL useful in your research, please cite:  
 *Amgarten DE, Braga LP, Da Silva AM, Setubal JC. MARVEL, a Tool for Prediction of Bacteriophage Sequences in Metagenomic Bins. Frontiers in Genetics. 2018;9:304.*
 
+## New Viral Groups
+
+We are working to train models to new viral groups. Let us know if a particular group would be helpful in your research.
+
 ## Dependencies
 
 All scripts from this project were coded in [Python 3](https://www.python.org/). So, first of all, make sure you have it installed and updated.  
