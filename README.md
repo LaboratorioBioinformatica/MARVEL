@@ -17,6 +17,13 @@ A manuscript describing MARVEL was published in [Frontiers in Genetics](https://
 If you find MARVEL useful in your research, please cite:  
 *Amgarten DE, Braga LP, Da Silva AM, Setubal JC. MARVEL, a Tool for Prediction of Bacteriophage Sequences in Metagenomic Bins. Frontiers in Genetics. 2018;9:304.*
 
+## Change Log
+#### MARVEL Version 0.2 - April 2019
+  * Fix for Prokka recent changes in its out files. All Prokka versions should work just fine.
+  * Bins containig contigs which are too short (<2000bp) will not be considered in downstream analyses and a warning will be printed.
+  * Minor improvements.
+  * Bugs ou others suggestions for improvement, just let me know: deyvid.amgarten@usp.br
+
 ## New Viral Groups
 
 We are working to train models to new viral groups. Let us know if a particular group would be helpful in your research.
@@ -25,7 +32,6 @@ We are working to train models to new viral groups. Let us know if a particular 
 
 All scripts from this project were coded in [Python 3](https://www.python.org/). So, first of all, make sure you have it installed and updated.  
 MARVEL's main scrip (marvel_bins.py) requires Prokka and HMMER tools as dependencies. By installing Prokka and its dependencies, you will usually  install HMMER tools automatically.  
-**It seems that prokka has changed one of its output file's extension from ".gbk" to ".gbf". If you enconter a "File not found" error, please let me know I will fix it asap (deyvid.amgarten@usp.br).**
 
 * [Prokka](https://github.com/tseemann/prokka) - Rapid Prokaryotic genome annotation.
 * [HMMER Tools](http://www.hmmer.org/) - Biosequence analysis using profile hidden Markov models
