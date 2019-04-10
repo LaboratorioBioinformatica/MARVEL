@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+# Edit April, 9th 2019
 ## This is the MARVEL Pipeline for analysis and retrieaval of Viral Long sequences
 ## This is a python second-half version, which receives bins as input
 # Developed by Deyvid Amgarten
@@ -16,7 +17,13 @@ import subprocess
 from collections import Counter
 import pickle
 import datetime
+<<<<<<< HEAD
+import sklearn
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+=======
 import argparse
+>>>>>>> a40b62d70f67347f2b8f276df2be2428eed88270
 
 # Function declarations
 
@@ -49,7 +56,7 @@ def run_prokka(binn, input_folder, threads):
     return_code = subprocess.call(command_line, stderr=subprocess.PIPE)
     # Check with prokka run smothly
     if return_code == 1:
-        print("Prokka did not end well")
+        print("Prokka may not be correctly installed. Please check that.")
         quit()
 
 # Get prefix from bins
@@ -100,7 +107,8 @@ def extract_features(record):
         # print(record.id, [mean_spacing_size, density, mean_gene_size, strand_shift, '/', count, flag])
         return ([density, strand_shift / count])
     else:
-        warnings_handle.write("WARNING:" + record.id + " has 1 or zero appropriate CDS features.")
+        #warnings_handle.write("WARNING:" + record.id + " has 1 or zero appropriate CDS features.")
+        print('WARNING: '+record.id+' has 1 or zero appropriate CDS features (those are important for prediction).')
 
 
 ###
@@ -116,7 +124,8 @@ args = parser.parse_args()
 
 
 # Greeting message
-print('\n**Welcome to the MARVEL pipeline!\n')
+print('\n**Welcome to the MARVEL Tool!\n')
+print('** Please cite: Amgarten DE, Braga LP, Da Silva AM, Setubal JC. MARVEL, a Tool for Prediction of Bacteriophage Sequences in Metagenomic Bins. Frontiers in Genetics. 2018;9:304.')
 
 # Verify databases
 if not os.path.isfile('models/all_vogs_hmm_profiles_feb2018.hmm'):
@@ -125,7 +134,7 @@ if not os.path.isfile('models/all_vogs_hmm_profiles_feb2018.hmm'):
 
 
 # Create Filehandle for warnings
-warnings_handle = open('marvel-warnings.txt', 'w')
+#warnings_handle = open('marvel-warnings.txt', 'w')
 
 # Important variables
 input_folder = args.input_folder
@@ -158,7 +167,7 @@ if count_bins == 0:
     quit()
 
 print('**Arguments are OK. Checked the input folder and found %d bins.\n' % count_bins)
-#print(str(datetime.datetime.now()))
+print('**'+str(datetime.datetime.now()))
 
 # Create results folder
 try:
@@ -180,9 +189,10 @@ for binn in list_bins:
     len_bin = 0
     for record in SeqIO.parse(input_folder + binn, 'fasta'):
         len_bin += len(record.seq)
-    # Make sure that bacterial bins are not take into account (too long bins)
-    #if len_bin < 500000:
-        #pass
+    #FIX: If a bin is too short, skip it
+    if len_bin < 2000:
+        print('**MARVEL has found a bin, which is too short to code proteins (<2000pb). As CDSs are an import feature for MARVEL, we will be skipping this bin: '+binn)
+        continue
     run_prokka(binn, input_folder, threads)
     count_prokka += 1
     if count_prokka % 10 == 0:
@@ -192,6 +202,7 @@ print('**Prokka tasks have finished!\n')
 ####
 # HMM SEARCHES
 ####
+print('**'+str(datetime.datetime.now()))
 print('**Starting HMM scan, this may take awhile. Be patient.\n')
 #print(str(datetime.datetime.now()))
 # Create a new results folder for hmmscan output
@@ -204,6 +215,12 @@ except:
 prop_hmms_hits = {}
 count_hmm = 0
 for binn in list_bins:
+    #FIX: If a bin is too short, skip it
+    len_bin = 0
+    for record in SeqIO.parse(input_folder + binn, 'fasta'):
+        len_bin += len(record.seq)
+    if len_bin < 2000:
+        continue
     # Prefix for naming results
     prefix = get_prefix(binn)
     command_line_hmmscan = 'hmmscan -o ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.out --cpu ' + threads + ' --tblout ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
@@ -245,6 +262,7 @@ for binn in list_bins:
 
 # Go for each bin and extract relevant features from respective genbank files
 # Final feature vector is "array_bins"
+print('**'+str(datetime.datetime.now()))
 print('\n**Extracting features from bins...\n')
 data_bins = []
 data_bins_index = []
@@ -254,11 +272,22 @@ data_bins_index = []
 # Iteration for bins
 count_pred = 0
 for bins in list_bins:
+    #FIX: If a bin is too short, skip it.
+    len_bin = 0
+    for record in SeqIO.parse(input_folder + bins, 'fasta'):
+        len_bin += len(record.seq)
+    if len_bin < 2000:
+        continue
     count_pred += 1
     prefix = get_prefix(bins)
     sub_data_bins = []
+    #FIX: Check whether prokka generated a .gbk or .gbf file
+    if os.path.isfile(input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'):
+        file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
+    else:
+        file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbf'
     # GBK File with gene prediction
-    file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
+    #file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
     for record in SeqIO.parse(file_name, "genbank"):
         # Extract_features still take the class as an argument
         # Sending only the record now
@@ -281,6 +310,7 @@ array_bins = np.array(data_bins, dtype=float)
 print('**Extracted features from', len(array_bins), 'bins\n')
 
 # Load RFC model from file
+print('**'+str(datetime.datetime.now()))
 print('**Doing the machine learning prediction...\n')
 pkl_filename = "models/pickle_model_rfc_trained_bins8k_refseq_all_3features_den_stran_prophitshmm.pkl"
 with open(pkl_filename, 'rb') as file:
@@ -317,10 +347,10 @@ for pred in y_test_prob[:, 1]:
 #    i += 1
 
 
-print('Finished Machine learning predictions!\n')
+print('**Finished Machine learning predictions!\n')
 #print(str(datetime.datetime.now()))
 # Just make sure to end the program closing the warnings filehandle
-warnings_handle.close()
+#warnings_handle.close()
 
 if is_there_phages == 1:
     try:
@@ -338,5 +368,6 @@ else:
     print("**We did not find any phage bins in this sample.")
 
 # Print ending messages
+print('**'+str(datetime.datetime.now()))
 print('**Thank you for using Marvel!\n')
 
