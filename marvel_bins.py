@@ -17,13 +17,10 @@ import subprocess
 from collections import Counter
 import pickle
 import datetime
-<<<<<<< HEAD
 import sklearn
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
-=======
 import argparse
->>>>>>> a40b62d70f67347f2b8f276df2be2428eed88270
 
 # Function declarations
 
