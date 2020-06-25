@@ -116,7 +116,7 @@ def extract_features(record):
 # Modification to use argparse
 parser = argparse.ArgumentParser(description='Predic phage draft genomes in metagenomic bins.')
 parser.add_argument('-i', action="store", required=True, dest="input_folder", help='Path to a folder containing metagenomic bins in .fa or .fasta format (required!)')
-parser.add_argument('-t', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmscan (default=1)')
+parser.add_argument('-t', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmsearch (default=1)')
 args = parser.parse_args()
 
 
@@ -200,15 +200,15 @@ print('**Prokka tasks have finished!\n')
 # HMM SEARCHES
 ####
 print('**'+str(datetime.datetime.now()))
-print('**Starting HMM scan, this may take awhile. Be patient.\n')
+print('**Starting HMM search, this may take awhile. Be patient.\n')
 #print(str(datetime.datetime.now()))
-# Create a new results folder for hmmscan output
+# Create a new results folder for hmmsearch output
 try:
-    os.stat(input_folder + 'results/hmmscan/')
+    os.stat(input_folder + 'results/hmmsearch/')
 except:
-    os.mkdir(input_folder + 'results/hmmscan/')
+    os.mkdir(input_folder + 'results/hmmsearch/')
 
-# Call HMMscan to all bins
+# Call hmmsearch to all bins
 prop_hmms_hits = {}
 count_hmm = 0
 for binn in list_bins:
@@ -220,19 +220,19 @@ for binn in list_bins:
         continue
     # Prefix for naming results
     prefix = get_prefix(binn)
-    command_line_hmmscan = 'hmmscan -o ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.out --cpu ' + threads + ' --tblout ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
-    # In case hmmscan returns an error
+    command_line_hmmsearch = 'hmmsearch -o ' + input_folder + 'results/hmmsearch/' + prefix + '_hmmsearch.out --cpu ' + threads + ' --tblout ' + input_folder + 'results/hmmsearch/' + prefix + '_hmmsearch.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
+    # In case hmmsearch returns an error
     try:
-        subprocess.call(command_line_hmmscan, shell=True)
+        subprocess.call(command_line_hmmsearch, shell=True)
         #True
     except:
-        print('**Error calling HMMscan:', command_line_hmmscan)
+        print('**Error calling hmmsearch:', command_line_hmmsearch)
         quit()
     count_hmm += 1
     # Iteration control
     if count_hmm % 10 == 0:
         print('**Done with %d bins HMM searches...' % count_hmm)
-    # Parse hmmscan output files and find out which bins have less than 10% of their proteins
+    # Parse hmmsearch output files and find out which bins have less than 10% of their proteins
     # without any significant hits (10e-10)
     num_proteins_bin = 0
     with open(input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa', 'r') as faa:
@@ -240,12 +240,13 @@ for binn in list_bins:
             if re.search('^>', line):
                 num_proteins_bin += 1
     dic_matches = {}
-    with open(input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl', 'r') as hmmscan_out:
-        for line in hmmscan_out:
-            match = re.search('^VOG\d+\s+-\s+(\S+)\s+-\s+(\S+)\s+.+$', line)
-            if match:
-                if match.group(1) not in dic_matches:
-                    dic_matches[match.group(1)] = float(match.group(2))
+    with open(input_folder + 'results/hmmsearch/' + prefix + '_hmmsearch.tbl', 'r') as hmmsearch_out:
+        for line in hmmsearch_out:
+            if line.startswith('#'):
+                continue
+            fields = re.split(r' +', line)
+            _id, _eval = fields[0], float(fields[4])
+            dic_matches[_id] = _eval
     # Take the proportion of proteins matching the pVOGs and store in a dictionary
     i_sig = 0
     for key in dic_matches:
