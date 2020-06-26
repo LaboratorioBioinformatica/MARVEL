@@ -43,7 +43,7 @@ process Prokka {
 }
 
 process Hmmsearch {
-        cpus 2
+        cpus 1
         publishDir params.outdir, mode: 'copy', overwrite: true, pattern: "*.tbl", saveAs: {fn -> "${prefix}/${fn}"}
 
         input:
@@ -60,6 +60,7 @@ process Hmmsearch {
 }
 
 process Predict {
+    cpus 1
 
     input:
     tuple prefix, nt_fasta, aa_fasta, genbank, tblout from hmmer_files
