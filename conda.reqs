@@ -1,0 +1,2 @@
+"python>3" "scikit-learn==0.19.1" prokka hmmer nextflow biopython
+
