@@ -13,6 +13,7 @@ from Bio import SeqIO
 import re
 import sys
 import os
+import shutil
 import subprocess
 from collections import Counter
 import pickle
@@ -196,6 +197,29 @@ for binn in list_bins:
         print('**Done with %d bins...' % count_prokka)
 print('**Prokka tasks have finished!\n')
 
+### 
+# Checkpoint
+# Remove prokka output that has empty fasta files
+###
+prokka_results = os.path.join(input_folder,'results/prokka')
+bin_dirs = os.listdir(prokka_results)
+skipped_bins = []
+for bin_dirname in bin_dirs:
+    bin_path = os.path.join(prokka_results, bin_dirname)
+    for f in os.listdir(bin_path):
+        fpath = os.path.join(bin_path, f)
+        if fpath.endswith('.faa') and os.stat(fpath).st_size == 0:
+            skipped_bins.append(bin_dirname)
+            print('**Skipping {} - No valid protein fasta was found'.format(bin_dirname))
+            print('Removing {}'.format(bin_path))
+            shutil.rmtree(bin_path)
+
+if len(skipped_bins) == len(list_bins):
+    print('**Error: prokka produced 0-length fasta files for all bins')
+    print('\tPlease check your input!')
+    sys.exit(1)
+
+
 ####
 # HMM SEARCHES
 ####
@@ -212,14 +236,14 @@ except:
 prop_hmms_hits = {}
 count_hmm = 0
 for binn in list_bins:
+    # Prefix for naming results
+    prefix = get_prefix(binn)
     #FIX: If a bin is too short, skip it
     len_bin = 0
     for record in SeqIO.parse(input_folder + binn, 'fasta'):
         len_bin += len(record.seq)
-    if len_bin < 2000:
+    if len_bin < 2000 or (prefix in skipped_bins):
         continue
-    # Prefix for naming results
-    prefix = get_prefix(binn)
     command_line_hmmscan = 'hmmscan -o ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.out --cpu ' + threads + ' --tblout ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
     # In case hmmscan returns an error
     try:
@@ -269,14 +293,14 @@ data_bins_index = []
 # Iteration for bins
 count_pred = 0
 for bins in list_bins:
+    prefix = get_prefix(bins)
     #FIX: If a bin is too short, skip it.
     len_bin = 0
     for record in SeqIO.parse(input_folder + bins, 'fasta'):
         len_bin += len(record.seq)
-    if len_bin < 2000:
+    if len_bin < 2000 or (prefix in skipped_bins):
         continue
     count_pred += 1
-    prefix = get_prefix(bins)
     sub_data_bins = []
     #FIX: Check whether prokka generated a .gbk or .gbf file
     if os.path.isfile(input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'):
