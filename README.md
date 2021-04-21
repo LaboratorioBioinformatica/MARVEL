@@ -47,6 +47,14 @@ To install these Python libraries, just type:
 pip3 install -U numpy scipy biopython scikit-learn
 ```
 
+* If you use conda you can use the `environment.yml` file within this project to install all dependencies.
+
+```
+$ conda env create -n marvel -f=environment.yml
+$ conda activate marvel
+(marvel)$ python marvel_bins.py -h
+```
+
 ## Installing
 
 Getting MARVEL ready to run is as simple as cloning this Github project or dowload and extract it to a directory inside your computer:
