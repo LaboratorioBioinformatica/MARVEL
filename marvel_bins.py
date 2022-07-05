@@ -116,11 +116,11 @@ def extract_features(record):
 # Set arguments
 # Modification to use argparse
 parser = argparse.ArgumentParser(description='Predic phage draft genomes in metagenomic bins.')
-parser.add_argument('-i', action="store", required=True, dest="input_folder", help='Path to a folder containing metagenomic bins in .fa or .fasta format (required!)')
+parser.add_argument('-i', '--input',action="store", required=True, dest="input_folder", help='Path to a folder containing metagenomic bins in .fa or .fasta format (required!)')
 parser.add_argument('-t', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmscan (default=1)')
 parser.add_argument('-m', '--models', default='models/all_vogs_hmm_profiles_feb2018.hmm', help='HMM models file')
+parser.add_argument('-o', '--output', default='results/', help='Output results directory')
 args = parser.parse_args()
-
 
 # Greeting message
 print('\n**Welcome to the MARVEL Tool!\n')
@@ -138,10 +138,11 @@ if not os.path.isfile(args.models):
 input_folder = args.input_folder
 threads = args.threads
 
-# Fix input folder path if missing '/'
+# Fix folders path if missing '/'
 if not re.search('/$', input_folder):
     input_folder = input_folder+'/'
-
+if not re.search('/$', args.output):
+    args.output = args.output+'/'    
 
 # Take the input folder and list all multifasta (bins) contained inside it
 list_bins_temp = os.listdir(input_folder)
@@ -169,10 +170,9 @@ print('**'+str(datetime.datetime.now()))
 
 # Create results folder
 try:
-    os.stat(input_folder + 'results/')
+    os.stat(args.output)
 except:
-    os.mkdir(input_folder + 'results/')
-
+    os.mkdir(args.output)
 
 #####
 # PROKKA
@@ -201,7 +201,7 @@ print('**Prokka tasks have finished!\n')
 # Checkpoint
 # Remove prokka output that has empty fasta files
 ###
-prokka_results = os.path.join(input_folder,'results/prokka')
+prokka_results = os.path.join(args.output,'prokka')
 bin_dirs = os.listdir(prokka_results)
 skipped_bins = []
 for bin_dirname in bin_dirs:
@@ -219,7 +219,6 @@ if len(skipped_bins) == len(list_bins):
     print('\tPlease check your input!')
     sys.exit(1)
 
-
 ####
 # HMM SEARCHES
 ####
@@ -228,9 +227,9 @@ print('**Starting HMM scan, this may take awhile. Be patient.\n')
 #print(str(datetime.datetime.now()))
 # Create a new results folder for hmmscan output
 try:
-    os.stat(input_folder + 'results/hmmscan/')
+    os.stat(args.output + 'hmmscan/')
 except:
-    os.mkdir(input_folder + 'results/hmmscan/')
+    os.mkdir(args.output + 'hmmscan/')
 
 # Call HMMscan to all bins
 prop_hmms_hits = {}
@@ -244,7 +243,7 @@ for binn in list_bins:
         len_bin += len(record.seq)
     if len_bin < 2000 or (prefix in skipped_bins):
         continue
-    command_line_hmmscan = 'hmmscan -o ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.out --cpu ' + threads + ' --tblout ' + input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
+    command_line_hmmscan = 'hmmscan -o ' + args.output + 'hmmscan/' + prefix + '_hmmscan.out --cpu ' + threads + ' --tblout ' + args.output + 'hmmscan/' + prefix + '_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + args.output + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
     # In case hmmscan returns an error
     try:
         subprocess.call(command_line_hmmscan, shell=True)
@@ -259,12 +258,12 @@ for binn in list_bins:
     # Parse hmmscan output files and find out which bins have less than 10% of their proteins
     # without any significant hits (10e-10)
     num_proteins_bin = 0
-    with open(input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.faa', 'r') as faa:
+    with open(args.output + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa', 'r') as faa:
         for line in faa:
             if re.search('^>', line):
                 num_proteins_bin += 1
     dic_matches = {}
-    with open(input_folder + 'results/hmmscan/' + prefix + '_hmmscan.tbl', 'r') as hmmscan_out:
+    with open(args.output + 'hmmscan/' + prefix + '_hmmscan.tbl', 'r') as hmmscan_out:
         for line in hmmscan_out:
             match = re.search('^VOG\d+\s+-\s+(\S+)\s+-\s+(\S+)\s+.+$', line)
             if match:
@@ -303,12 +302,12 @@ for bins in list_bins:
     count_pred += 1
     sub_data_bins = []
     #FIX: Check whether prokka generated a .gbk or .gbf file
-    if os.path.isfile(input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'):
-        file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
+    if os.path.isfile(args.output + 'prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'):
+        file_name = args.output + 'prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
     else:
-        file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbf'
+        file_name = args.output + 'prokka/' + prefix + '/prokka_results_' + prefix + '.gbf'
     # GBK File with gene prediction
-    #file_name = input_folder + 'results/prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
+    #file_name = args.output + 'prokka/' + prefix + '/prokka_results_' + prefix + '.gbk'
     for record in SeqIO.parse(file_name, "genbank"):
         # Extract_features still take the class as an argument
         # Sending only the record now
@@ -375,20 +374,19 @@ print('**Finished Machine learning predictions!\n')
 
 if is_there_phages == 1:
     try:
-        os.stat(input_folder + 'results/phage_bins')
+        os.stat(args.output + 'phage_bins')
     except:
-        os.mkdir(input_folder + 'results/phage_bins')
+        os.mkdir(args.output + 'phage_bins')
     if re.search('.fasta',list_bins[0], re.IGNORECASE):
         file_format = '.fasta'
     else:
         file_format = '.fa'
     for bin_phage in bins_predicted_as_phages:
-        subprocess.call('cp ' + input_folder + bin_phage + file_format + ' ' + input_folder + 'results/phage_bins/' + bin_phage + '.fasta', shell=True)
-    print('**Bins predicted as phages are in the folder:', input_folder + 'results/phage_bins/\n')
+        subprocess.call('cp ' + input_folder + bin_phage + file_format + ' ' + args.output + 'phage_bins/' + bin_phage + '.fasta', shell=True)
+    print('**Bins predicted as phages are in the folder:', args.output + 'phage_bins/\n')
 else:
     print("**We did not find any phage bins in this sample.")
 
 # Print ending messages
 print('**'+str(datetime.datetime.now()))
 print('**Thank you for using Marvel!\n')
-
