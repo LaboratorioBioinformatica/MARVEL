@@ -118,6 +118,7 @@ def extract_features(record):
 parser = argparse.ArgumentParser(description='Predic phage draft genomes in metagenomic bins.')
 parser.add_argument('-i', action="store", required=True, dest="input_folder", help='Path to a folder containing metagenomic bins in .fa or .fasta format (required!)')
 parser.add_argument('-t', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmscan (default=1)')
+parser.add_argument('-m', '--models', default='models/all_vogs_hmm_profiles_feb2018.hmm', help='HMM models file')
 args = parser.parse_args()
 
 
@@ -126,10 +127,9 @@ print('\n**Welcome to the MARVEL Tool!\n')
 print('** Please cite: Amgarten DE, Braga LP, Da Silva AM, Setubal JC. MARVEL, a Tool for Prediction of Bacteriophage Sequences in Metagenomic Bins. Frontiers in Genetics. 2018;9:304.')
 
 # Verify databases
-if not os.path.isfile('models/all_vogs_hmm_profiles_feb2018.hmm'):
-    print('**Your database and models are not set. Please, run: python download_and_set_models.py \n')
+if not os.path.isfile(args.models):
+    parser.error(f'--models {args.models} does not exist. Please specify correct directory, or run python download_and_set_models.py if you have not already')
     quit()
-
 
 # Create Filehandle for warnings
 #warnings_handle = open('marvel-warnings.txt', 'w')
