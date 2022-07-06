@@ -117,9 +117,10 @@ def extract_features(record):
 # Modification to use argparse
 parser = argparse.ArgumentParser(description='Predic phage draft genomes in metagenomic bins.')
 parser.add_argument('-i', '--input',action="store", required=True, dest="input_folder", help='Path to a folder containing metagenomic bins in .fa or .fasta format (required!)')
-parser.add_argument('-t', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmscan (default=1)')
-parser.add_argument('-m', '--models', default='models/all_vogs_hmm_profiles_feb2018.hmm', help='HMM models file')
-parser.add_argument('-o', '--outdir', default='results/', help='Output results directory')
+parser.add_argument('-t', '--threads', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmscan (default=1)')
+parser.add_argument('-m', '--models', action="store", default='models/all_vogs_hmm_profiles_feb2018.hmm', help='HMM models file')
+parser.add_argument('-o', '--outdir', action="store", default='results/', help='Path to output results directory')
+#parser.add_argument('--hmmsearch', action='store_true', help='Invokes hmmsearch instead of hmmscan') #option to use hmmsearch instead of hmmscan, Needs further implementation
 args = parser.parse_args()
 
 # Greeting message
