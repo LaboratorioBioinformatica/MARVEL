@@ -50,7 +50,7 @@ def run_prokka(binn, input_folder, threads):
     # Filehandle where the output of prokka will be saved
     # output_prokka = open(str(prefix)+'prokka.output', mode='w')
     # Full command line for prokka
-    command_line = ('prokka --kingdom Viruses --centre X --compliant --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(prefix) + ' --fast --norrna --notrna --outdir ' + input_folder + 'results/prokka/' + str(prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
+    command_line = ('prokka --kingdom Viruses --centre X --compliant --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(prefix) + ' --fast --norrna --notrna --outdir ' + args.outdir + 'results/prokka/' + str(prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
     return_code = subprocess.call(command_line, stderr=subprocess.PIPE)
     # Check with prokka run smothly
     if return_code == 1:
