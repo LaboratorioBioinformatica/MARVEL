@@ -117,10 +117,9 @@ def extract_features(record):
 # Modification to use argparse
 parser = argparse.ArgumentParser(description='Predic phage draft genomes in metagenomic bins.')
 parser.add_argument('-i', '--input',action="store", required=True, dest="input_folder", help='Path to a folder containing metagenomic bins in .fa or .fasta format (required!)')
-parser.add_argument('-t', '--threads', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmscan (default=1)')
+parser.add_argument('-t', '--threads', action="store", dest="threads", default='1', help='Number of CPU threads to be used by Prokka and hmmsearch (default=1)')
 parser.add_argument('-m', '--models', action="store", default='models/all_vogs_hmm_profiles_feb2018.hmm', help='HMM models file')
 parser.add_argument('-o', '--outdir', action="store", default='results/', help='Path to output results directory')
-#parser.add_argument('--hmmsearch', action='store_true', help='Invokes hmmsearch instead of hmmscan') #option to use hmmsearch instead of hmmscan, Needs further implementation
 args = parser.parse_args()
 
 # Greeting message
@@ -226,13 +225,13 @@ if len(skipped_bins) == len(list_bins):
 print('**'+str(datetime.datetime.now()))
 print('**Starting HMM scan, this may take awhile. Be patient.\n')
 #print(str(datetime.datetime.now()))
-# Create a new results folder for hmmscan output
+# Create a new results folder for hmmsearch output
 try:
-    os.stat(args.outdir + 'hmmscan/')
+    os.stat(args.outdir + 'hmmsearch/')
 except:
-    os.mkdir(args.outdir + 'hmmscan/')
+    os.mkdir(args.outdir + 'hmmsearch/')
 
-# Call HMMscan to all bins
+# Call HMMsearch to all bins
 prop_hmms_hits = {}
 count_hmm = 0
 for binn in list_bins:
@@ -244,19 +243,19 @@ for binn in list_bins:
         len_bin += len(record.seq)
     if len_bin < 2000 or (prefix in skipped_bins):
         continue
-    command_line_hmmscan = 'hmmscan -o ' + args.outdir + 'hmmscan/' + prefix + '_hmmscan.out --cpu ' + threads + ' --tblout ' + args.outdir + 'hmmscan/' + prefix + '_hmmscan.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + args.outdir + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
-    # In case hmmscan returns an error
+    command_line_hmmsearch = 'hmmsearch -o ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.out --cpu ' + threads + ' --tblout ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm ' + args.outdir + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa -Z 9518'
+    # In case hmmsearch returns an error
     try:
-        subprocess.call(command_line_hmmscan, shell=True)
+        subprocess.call(command_line_hmmsearch, shell=True)
         #True
     except:
-        print('**Error calling HMMscan:', command_line_hmmscan)
+        print('**Error calling HMMsearch:', command_line_hmmsearch)
         quit()
     count_hmm += 1
     # Iteration control
     if count_hmm % 10 == 0:
         print('**Done with %d bins HMM searches...' % count_hmm)
-    # Parse hmmscan output files and find out which bins have less than 10% of their proteins
+    # Parse hmmsearch output files and find out which bins have less than 10% of their proteins
     # without any significant hits (10e-10)
     num_proteins_bin = 0
     with open(args.outdir + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa', 'r') as faa:
@@ -264,8 +263,8 @@ for binn in list_bins:
             if re.search('^>', line):
                 num_proteins_bin += 1
     dic_matches = {}
-    with open(args.outdir + 'hmmscan/' + prefix + '_hmmscan.tbl', 'r') as hmmscan_out:
-        for line in hmmscan_out:
+    with open(args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.tbl', 'r') as hmmsearch_out:
+        for line in hmmsearch_out:
             match = re.search('^VOG\d+\s+-\s+(\S+)\s+-\s+(\S+)\s+.+$', line)
             if match:
                 if match.group(1) not in dic_matches:
