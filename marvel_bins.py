@@ -243,7 +243,7 @@ for binn in list_bins:
         len_bin += len(record.seq)
     if len_bin < 2000 or (prefix in skipped_bins):
         continue
-    command_line_hmmsearch = 'hmmsearch -o ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.out --cpu ' + threads + ' --tblout ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm -Z 9518 ' + args.outdir + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
+    command_line_hmmsearch = 'hmmsearch -o ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.out --cpu ' + threads + ' --tblout ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.tbl --noali -Z 9518 models/all_vogs_hmm_profiles_feb2018.hmm ' + args.outdir + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
     # In case hmmsearch returns an error
     try:
         subprocess.call(command_line_hmmsearch, shell=True)
