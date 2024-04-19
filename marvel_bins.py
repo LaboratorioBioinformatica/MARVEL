@@ -50,7 +50,7 @@ def run_prokka(binn, input_folder, threads):
     # Filehandle where the output of prokka will be saved
     # output_prokka = open(str(prefix)+'prokka.output', mode='w')
     # Full command line for prokka
-    command_line = ('prokka --kingdom Viruses --centre X --compliant --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(prefix) + ' --fast --norrna --notrna --outdir ' + args.outdir + 'results/prokka/' + str(prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
+    command_line = ('prokka --kingdom Viruses --centre X --compliant --gcode 11 --cpus ' + threads + ' --force --quiet --prefix prokka_results_' + str(prefix) + ' --fast --norrna --notrna --outdir ' + args.outdir + 'prokka/' + str(prefix) + ' --cdsrnaolap --noanno ' + input_folder + str(binn)).split()
     return_code = subprocess.call(command_line, stderr=subprocess.PIPE)
     # Check with prokka run smothly
     if return_code == 1:
@@ -243,7 +243,7 @@ for binn in list_bins:
         len_bin += len(record.seq)
     if len_bin < 2000 or (prefix in skipped_bins):
         continue
-    command_line_hmmsearch = 'hmmsearch -o ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.out --cpu ' + threads + ' --tblout ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.tbl --noali models/all_vogs_hmm_profiles_feb2018.hmm -Z 9518 ' + args.outdir + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
+    command_line_hmmsearch = 'hmmsearch -o ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.out --cpu ' + threads + ' --tblout ' + args.outdir + 'hmmsearch/' + prefix + '_hmmsearch.tbl --noali -Z 9518 models/all_vogs_hmm_profiles_feb2018.hmm ' + args.outdir + 'prokka/' + prefix + '/prokka_results_' + prefix + '.faa'
     # In case hmmsearch returns an error
     try:
         subprocess.call(command_line_hmmsearch, shell=True)
